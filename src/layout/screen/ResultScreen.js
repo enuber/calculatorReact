@@ -1,10 +1,10 @@
 import '../../styles/resultScreen.css';
 import React from 'react';
 
-const resultScreen = () => {
+const resultScreen = (props) => {
     return (
         <div className="resultScreen">
-            3214
+            {props.children}
         </div>
     )
 };

@@ -1,10 +1,10 @@
 import '../../styles/computationScreen.css';
 import React from 'react';
 
-const computationScreen = () => {
+const computationScreen = (props) => {
     return (
     <div className="computationScreen">
-        3000 + 100 * 20
+        {props.children}
     </div>
     )
 };
