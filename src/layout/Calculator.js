@@ -34,44 +34,46 @@ class Calculator extends React.Component {
         }
     }
 
-    onButtonPress = async (evt) => {
+    onButtonPress = evt => {
         let equation = this.state.equation;
         let currentNumber = this.state.currentNumber;
         const pressedButton = evt.target.innerHTML;
-        if (pressedButton === 'C') {
+        if (pressedButton === 'CE') {
             return this.clear();
         } else if ((pressedButton >= '0' && pressedButton <= '9') || pressedButton === '.') {
             if (!this.state.percentClicked) {
                 return this.acceptNumOrDec(pressedButton);
             }
         } else if (['+', '-', '*', '/'].indexOf(pressedButton) !== -1) {
-            await this.setState({
-                percentClicked: false
-            });
-            return this.acceptOperator(pressedButton);
+            if (this.state.currentNumber === '' && this.state.originalNumber === "") {
+                return;
+            } else {
+                this.setState({
+                    percentClicked: false
+                }, () => {
+                    return this.acceptOperator(pressedButton);
+                });
+            }
         } else if (['%'].indexOf(pressedButton) !== -1) {
             if (!this.state.percentClicked) {
-                return this.precentage();
+                return this.percentage();
             }
         } else if (pressedButton === '=') {
             try {
-                await this.setState({
+                this.setState({
                     equalClicked: true,
                     percentClicked: false
+                }, () => {
+                    if (!this.state.operatorClicked) {
+                        this.doMath()
+                    }
                 });
-                this.doMath();
-                // const evalResult = eval(equation);
-                // const displayValue = Number.isInteger(evalResult) ? evalResult : evalResult.toFixed(2);
-                // this.setState({displayValue});
             } catch (error) {
                 alert('Not A Valid Equation');
                 return this.clear();
             }
         }  else {
-            equation = equation.trim();
-            equation = equation.substr(0, equation.length -1);
-            currentNumber = currentNumber.trim();
-            currentNumber = currentNumber.substr(0, currentNumber -1);
+            this.removeLast();
         }
         this.setState({
             equation,
@@ -93,12 +95,12 @@ class Calculator extends React.Component {
         //and now we just need to prepare for the new number
         if (this.state.operatorClicked) {
             if (this.state.originalNumber === '') {
-                await this.setState({
+                await this.setState( state => ({
                     currentNumber: '',
                     originalNumber: this.state.currentNumber,
                     operatorClicked: false,
                     displayValue: input
-                });
+                }));
             } else {
                 await this.setState({
                     currentNumber: '',
@@ -172,8 +174,7 @@ class Calculator extends React.Component {
             && this.state.currentOperator !== '') {
             await this.setState({
                 equalClicked: false,
-            });
-           await this.doMath();
+            }, () => this.doMath());
         }
         let equation = this.state.equation;
         //this cleans up the current operator in the equation if you go from one operator immediately
@@ -193,13 +194,18 @@ class Calculator extends React.Component {
         })
     };
 
-    precentage = async () => {
+    percentage = async () => {
         let displayValue;
         let equation;
         let percentClicked: false;
+        debugger;
         // makes a check to be sure a number exists and that it isn't 0 before applying a percantage.
         if (this.state.currentNumber !== '' && parseFloat(this.state.currentNumber) !== 0) {
-            equation = this.state.equation + '%';
+            if (!this.state.operatorClicked) {
+                equation = this.state.equation + '%';
+            } else {
+                equation = `${this.state.equation} ${this.state.currentNumber}%`;
+            }
             let currentNumber = this.state.currentNumber;
             if (this.state.currentOperator === '*' || this.state.currentOperator === "/" || this.state.originalNumber === '') {
                 displayValue = currentNumber / 100;
@@ -209,12 +215,15 @@ class Calculator extends React.Component {
             percentClicked = true;
             //if there is nothing there than we need to ignore that the percent was clicked and leave the
             //function
+        } else if (this.state.currentNumber === '' && this.state.originalNumber !== '') {
+            equation = `${this.state.equation} ${this.state.originalNumber*100}%`;
+            displayValue = (((this.state.originalNumber * 100) / 100) * this.state.originalNumber);
         } else {
-            await this.setState({
-                equation : this.state.equation,
+            await this.setState(state => ({
+                equation : state.equation,
                 displayValue : 0,
                 percentClicked : false
-            });
+            }));
             return;
         }
         //in order to set thngs up properly, you have to check where in the math the percent has been placed
@@ -226,28 +235,30 @@ class Calculator extends React.Component {
         //currentNumber to the number gotten after the perentage math was done to it.
         if (this.state.originalNumber === '') {
             await this.setState({
-                currentNumber: '',
+                // currentNumber: '',
                 originalNumber: displayValue,
                 equation,
                 displayValue,
-                percentClicked
+                percentClicked,
+                operatorClicked: false
             });
         } else {
             await this.setState({
                 currentNumber: displayValue,
                 equation,
                 displayValue,
-                percentClicked
+                percentClicked,
+                operatorClicked: false
             });
         }
     };
 
     doMath = async () => {
-        let operator = this.state.currentOperator;
+        let {currentOperator, equation} = this.state;
         let displayValue;
         //extricated the percentage as an operator because it simplified the actual math portion of
         //the calculator.
-        switch (operator) {
+        switch (currentOperator) {
             case '+':
                 displayValue = parseFloat(this.state.originalNumber) + parseFloat(this.state.currentNumber);
                 break;
@@ -278,22 +289,49 @@ class Calculator extends React.Component {
         //the last calculation again and again. Thus we put the number on screen into the originalNumbers
         //location. If the equal sign was not clicked, we then are setting the current Number to the result and
         //emptying the original Number so that math may then continue to be performed correctly.
+        equation += ` = ${displayValue} `;
         if (this.state.equalClicked) {
             await this.setState({
-                currentOperator: operator,
+                equation,
+                currentOperator,
                 calculationMade: true,
                 originalNumber: displayValue,
                 displayValue
             });
         } else {
             await this.setState({
+                equation,
                 currentNumber: displayValue,
-                currentOperator: operator,
+                currentOperator,
                 calculationMade: false,
                 originalNumber: '',
                 displayValue
             })
         }
+    };
+
+    removeLast = async () => {
+        let equation = this.state.equation.split(' ');
+        const lengthArr = equation.length;
+        equation.pop();
+        equation = equation.join(' ');
+        debugger;
+        if (lengthArr === 3) {
+            await this.setState({
+                equation,
+                currentNumber: '',
+                displayValue: 0
+            });
+            return;
+        } else if (lengthArr === 2) {
+            await this.setState(state => ({
+                equation,
+                currentOperator: '',
+                displayValue: state.originalNumber
+            }));
+            return
+        }
+        this.clear();
     };
 
     //resets the entire state if the clear was clicked.
