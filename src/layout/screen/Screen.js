@@ -7,7 +7,6 @@ const screen = (props) => {
     return(
     <section className="screen">
         <ResultScreen>{props.result}</ResultScreen>
-        <ComputationScreen>{props.equation}</ComputationScreen>
     </section>
     )
 };
