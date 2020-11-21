@@ -27,13 +27,16 @@ class Calculator extends React.Component {
         if (prevState.displayValue !== this.state.displayValue) {
             let { displayValue } = this.state;
             displayValue = String(displayValue);
-            let updatedValue = null;
-            if (displayValue.length > 10) {
-                updatedValue = parseFloat(displayValue).toPrecision(10);
-                this.setState({
-                    displayValue : updatedValue
-                });
+            //makes sure that if infinity is displayed that more digits don't appear
+            if (displayValue.indexOf('Infinity') !== -1) {
+                displayValue = 'Infinity';
             }
+            if (displayValue.length > 10) {
+                displayValue = parseFloat(displayValue).toPrecision(10);
+            }
+            this.setState({
+                displayValue
+            })
         }
     }
 

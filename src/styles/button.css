@@ -2,10 +2,10 @@
     align-items: center;
     background-color: #ddd;
     border: 1px solid #aaa;
-    display: flex;
+    display: inline-block;
     font-family: inherit;
     font-size: 3rem;
-    height: 100%;
+    height: 75px;
     justify-content: center;
     outline: none;
     transition: all .2s;

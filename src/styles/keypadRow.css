@@ -1,6 +1,4 @@
 .keypadRow {
     color: white;
-    display: flex;
-    height: 11vh;
     width: 100%;
 }

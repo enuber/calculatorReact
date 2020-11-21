@@ -1,7 +1,6 @@
 .screen {
-    background-color: #000;
     color: #EEE;
-    height: 25vh;
+    height: 100px;
     overflow: hidden;
     padding: 0 2rem;
     white-space: nowrap;
