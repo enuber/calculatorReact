@@ -3,7 +3,7 @@ import React from 'react';
 import KeypadRow from './KeypadRow';
 import Button from '../../components/Button';
 
-const keypad = (props) => {
+const keypad = props => {
 
     const { displayValue } = props;
     const checkClearMethod = displayValue === '0';

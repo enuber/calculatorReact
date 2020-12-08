@@ -1,5 +1,6 @@
 {
   "name": "calculator",
+  "homepage": "https://eriknuber.us/apps/calculator_react/",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
